@@ -80,4 +80,5 @@ def handle_code_change(data):
     emit("code_update", data, broadcast=True, include_self=False)
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)
+
