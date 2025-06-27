@@ -1,77 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Live Code Editor</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- CodeMirror -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/theme/dracula.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/theme/dracula.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/clike/clike.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/clike/clike.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/javascript/javascript.min.js"></script>
 
   <!-- Socket.IO -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 
   <style>
     .CodeMirror {
-      height: 500px;
+      height: 400px;
       font-size: 16px;
     }
   </style>
 </head>
-<body class="bg-gray-100 font-sans">
-  <div class="max-w-7xl mx-auto p-6">
-    <h1 class="text-3xl font-bold text-center mb-6">💻 Live Code Editor</h1>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      
-      <!-- Code Editor Panel -->
-      <div class="lg:col-span-2 bg-gray-900 rounded-xl p-4 shadow-md">
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-7xl mx-auto p-6 space-y-6">
+    <h1 class="text-3xl font-bold text-center text-blue-700">Live Collaborative Code Editor</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Code Editor -->
+      <div class="md:col-span-2 bg-gray-900 p-4 rounded-xl shadow-lg">
         <textarea id="editor"></textarea>
-
         <div class="flex justify-between items-center mt-4">
-          <button onclick="runCode()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded">
-            ▶ Run Code
-          </button>
-          <select id="language" class="bg-white border px-2 py-2 rounded text-sm">
+          <button onclick="runCode()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">Run Code</button>
+          <select id="language" class="ml-4 px-2 py-1 rounded-lg border text-gray-900">
             <option value="50">C</option>
             <option value="54">C++</option>
-            <option value="71">Python</option>
+            <option value="71" selected>Python</option>
             <option value="62">Java</option>
             <option value="63">JavaScript</option>
           </select>
         </div>
       </div>
 
-      <!-- Output & Chat Panel -->
-      <div class="flex flex-col gap-4">
-        <!-- Output -->
-        <div class="bg-gray-900 text-green-400 rounded-lg p-4 h-60 overflow-auto shadow-md">
-          <h2 class="text-white font-semibold mb-2">Output:</h2>
-          <pre id="output">Waiting for code execution...</pre>
+      <!-- Output and Chat -->
+      <div class="space-y-6">
+        <div class="bg-gray-900 text-green-400 p-3 rounded-xl shadow h-48 overflow-auto" id="output">
+          Waiting for code execution...
         </div>
 
-        <!-- Chat -->
-        <div class="bg-white rounded-lg p-4 h-64 shadow-md flex flex-col">
-          <h2 class="font-semibold mb-2">💬 Chat</h2>
-          <div id="chat-box" class="flex-1 overflow-y-auto border p-2 rounded text-sm bg-gray-50"></div>
+        <div>
+          <h2 class="text-lg font-semibold mb-1">Chat</h2>
+          <div class="bg-white border rounded-xl h-40 p-2 overflow-y-auto" id="chat-box"></div>
           <div class="flex mt-2">
-            <input id="chat-input" type="text" placeholder="Type a message..." class="flex-1 px-3 py-2 border rounded text-sm" />
-            <button onclick="sendMessage()" class="ml-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Send</button>
+            <input id="chat-input" type="text" placeholder="Type a message..."
+              class="flex-1 px-3 py-2 border rounded-lg text-sm" />
+            <button onclick="sendMessage()" class="ml-2 bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-lg">
+              Send
+            </button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Your Socket and Editor Logic -->
   <script src="/static/script.js"></script>
 </body>
+
 </html>
