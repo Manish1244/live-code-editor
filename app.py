@@ -13,7 +13,7 @@ clients = {}
 JUDGE0_URL = "https://judge0-ce.p.rapidapi.com/submissions"
 HEADERS = {
     "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
-    "x-rapidapi-key": "3598f885a0mshcffa68d4a63d140p1acd22jsn54524acc6c9e",  # 🔁 Replace with your key
+    "x-rapidapi-key": "3598f885a0mshcffa68d4a63d140p1acd22jsn54524acc6c9e",  # Replace with your actual API key
     "content-type": "application/json"
 }
 
@@ -37,12 +37,11 @@ def run_code():
         submit = requests.post(JUDGE0_URL, json=payload, headers=HEADERS, params={"base64_encoded": "false", "wait": "false"})
         token = submit.json()["token"]
 
-        # Poll for result
         for _ in range(10):
             result = requests.get(f"{JUDGE0_URL}/{token}", headers=HEADERS, params={"base64_encoded": "false"})
             res_json = result.json()
 
-            if res_json.get("status", {}).get("id") in [1, 2]:  # In Queue or Processing
+            if res_json.get("status", {}).get("id") in [1, 2]:
                 time.sleep(1)
                 continue
             else:
