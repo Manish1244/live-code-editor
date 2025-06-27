@@ -8,7 +8,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 JUDGE0_URL = "https://judge0-ce.p.rapidapi.com/submissions"
 JUDGE0_HEADERS = {
     "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
-    "x-rapidapi-key": "YOUR_RAPIDAPI_KEY",  # Replace this with your actual API key
+    "x-rapidapi-key": "3598f885a0mshcffa68d4a63d140p1acd22jsn54524acc6c9e",  # Replace this with your actual API key
     "content-type": "application/json",
     "accept": "application/json"
 }
