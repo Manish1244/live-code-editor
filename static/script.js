@@ -64,7 +64,7 @@ async function runCode() {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-RapidAPI-Key": "YOUR_RAPIDAPI_KEY",
+      "X-RapidAPI-Key": "3598f885a0mshcffa68d4a63d140p1acd22jsn54524acc6c9e",
       "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
     },
     body: JSON.stringify({
