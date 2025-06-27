@@ -1,47 +1,49 @@
-import eventlet
-eventlet.monkey_patch()
-
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 import requests
-import os
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet')
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
+JUDGE0_URL = "https://judge0-ce.p.rapidapi.com/submissions"
 JUDGE0_HEADERS = {
-    "X-RapidAPI-Key": os.environ.get("RAPIDAPI_KEY"),
-    "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
-    "content-type": "application/json"
+    "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+    "x-rapidapi-key": "YOUR_RAPIDAPI_KEY",  # Replace this with your actual API key
+    "content-type": "application/json",
+    "accept": "application/json"
 }
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
 @socketio.on('code_change')
-def code_change(data):
-    emit('code_update', data, broadcast=True, include_self=False)
+def handle_code_change(data):
+    emit('code_update', data, broadcast=True)
 
-@socketio.on('chat_message')
-def handle_chat(msg):
-    emit('chat_message', msg, broadcast=True)
+@socketio.on('run_code')
+def handle_run_code(data):
+    code = data['code']
+    lang_id = data['language']
 
-@app.route('/run', methods=['POST'])
-def run_code():
     payload = {
-        "language_id": 63,
-        "source_code": request.json.get("code"),
+        "language_id": lang_id,
+        "source_code": code,
         "stdin": ""
     }
-    response = requests.post(
-        "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true",
-        json=payload,
-        headers=JUDGE0_HEADERS
-    )
-    return jsonify(response.json())
+
+    response = requests.post(JUDGE0_URL + "?base64_encoded=false&wait=true", json=payload, headers=JUDGE0_HEADERS)
+
+    if response.status_code == 201:
+        output = response.json().get("stdout") or response.json().get("stderr") or "No output"
+    else:
+        output = f"Error: {response.status_code}"
+
+    emit('code_output', output)
+
+@socketio.on('chat_message')
+def handle_chat_message(data):
+    emit('chat_message', data, broadcast=True)
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
-    socketio.run(app, host='0.0.0.0', port=port)
+    socketio.run(app, host='0.0.0.0', port=5000)
