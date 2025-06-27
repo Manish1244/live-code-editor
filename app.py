@@ -9,12 +9,12 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 def index():
     return render_template("index.html")
 
-# Broadcast code to all others (not sender)
+# Broadcast code changes to all other connected clients (not the sender)
 @socketio.on("code_change")
 def handle_code_change(data):
     emit("code_update", data, broadcast=True, include_self=False)
 
-# Broadcast chat to all (including sender)
+# Broadcast chat messages to everyone (including sender)
 @socketio.on("chat_message")
 def handle_chat_message(data):
     emit("new_message", data, broadcast=True)
