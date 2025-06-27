@@ -1,8 +1,5 @@
 Flask==2.3.2
 Flask-SocketIO==5.3.6
-eventlet==0.33.3
-requests
-flask
-flask-socketio
-requests
-eventlet
+requests==2.32.2
+python-socketio==5.8.0
+python-engineio==4.12.2
