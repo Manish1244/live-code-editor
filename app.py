@@ -1,39 +1,55 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
+import requests
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, cors_allowed_origins="*")
 CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Store latest code so new users see the current version
-latest_code = {"code": ""}
+code_data = ""
 
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
-# Chat messages with user tagging
-@socketio.on('chat_message')
+@app.route("/run", methods=["POST"])
+def run():
+    data = request.get_json()
+    code = data.get("code")
+    lang = data.get("language")
+
+    url = "https://judge0-ce.p.rapidapi.com/submissions"
+    headers = {
+        "content-type": "application/json",
+        "X-RapidAPI-Key": "3598f885a0mshcffa68d4a63d140p1acd22jsn54524acc6c9e",
+        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com"
+    }
+
+    payload = {
+        "language_id": lang,
+        "source_code": code,
+        "stdin": ""
+    }
+
+    res = requests.post(url, json=payload, headers=headers)
+    token = res.json().get("token")
+
+    result = requests.get(f"{url}/{token}?base64_encoded=false", headers=headers)
+    output = result.json().get("stdout") or result.json().get("stderr") or "No output."
+
+    return jsonify({"output": output})
+
+
+@socketio.on("code_change")
+def handle_code_change(code):
+    global code_data
+    code_data = code
+    emit("code_update", code, broadcast=True, include_self=False)
+
+@socketio.on("chat_message")
 def handle_chat_message(data):
-    user = data.get('user', 'Anonymous')
-    message = data.get('message', '')
-    emit('chat_update', {'user': user, 'message': message}, broadcast=True)
+    emit("chat_message", data, broadcast=True)
 
-# Collaborative code editing
-@socketio.on('code_change')
-def handle_code_change(data):
-    global latest_code
-    code = data.get("code", "")
-    latest_code["code"] = code
-    emit('code_update', {'code': code}, broadcast=True, include_self=False)
-
-# When a new user joins, send them the latest code
-@socketio.on('connect')
-def handle_connect():
-    emit('code_update', latest_code)
-
-if __name__ == '__main__':
-    # For local development
-    socketio.run(app, host='0.0.0.0', port=5000, allow_unsafe_werkzeug=True)
+if __name__ == "__main__":
+    socketio.run(app, host="0.0.0.0", port=5000, allow_unsafe_werkzeug=True)
