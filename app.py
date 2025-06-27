@@ -9,11 +9,11 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 ROOM = "global"
 clients = {}
 
-# Judge0 API Config
+# Judge0 API
 JUDGE0_URL = "https://judge0-ce.p.rapidapi.com/submissions"
 HEADERS = {
     "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
-    "x-rapidapi-key": "3598f885a0mshcffa68d4a63d140p1acd22jsn54524acc6c9e",  # 🔁 Replace with your actual key
+    "x-rapidapi-key": "3598f885a0mshcffa68d4a63d140p1acd22jsn54524acc6c9e",  # 🔁 Replace with your key
     "content-type": "application/json"
 }
 
@@ -34,41 +34,50 @@ def run_code():
     }
 
     try:
-        response = requests.post(JUDGE0_URL, json=payload, headers=HEADERS, params={"base64_encoded": "false", "wait": "true"})
-        result = response.json()
-        output = result.get("stdout") or result.get("stderr") or result.get("compile_output") or "No output."
-        return jsonify({"output": output})
+        submit = requests.post(JUDGE0_URL, json=payload, headers=HEADERS, params={"base64_encoded": "false", "wait": "false"})
+        token = submit.json()["token"]
+
+        # Poll for result
+        for _ in range(10):
+            result = requests.get(f"{JUDGE0_URL}/{token}", headers=HEADERS, params={"base64_encoded": "false"})
+            res_json = result.json()
+
+            if res_json.get("status", {}).get("id") in [1, 2]:  # In Queue or Processing
+                time.sleep(1)
+                continue
+            else:
+                output = res_json.get("stdout") or res_json.get("stderr") or res_json.get("compile_output") or "No output."
+                return jsonify({"output": output})
+
+        return jsonify({"output": "Timed out. Please try again."})
+
     except Exception as e:
         return jsonify({"output": f"Error: {str(e)}"})
 
 @socketio.on("connect")
-def handle_connect():
-    print("Client connected")
+def on_connect():
+    print("Client connected.")
 
 @socketio.on("disconnect")
-def handle_disconnect():
-    if request.sid in clients:
-        name = clients[request.sid]
-        emit("chat_message", {"name": "System", "message": f"{name} left the session."}, room=ROOM)
-        del clients[request.sid]
-    print("Client disconnected")
+def on_disconnect():
+    print("Client disconnected.")
 
 @socketio.on("join")
-def handle_join(data):
-    name = data.get("name", "Anonymous")
-    clients[request.sid] = name
+def on_join(data):
+    username = data.get("name", "Anonymous")
+    clients[request.sid] = username
     join_room(ROOM)
-    emit("chat_message", {"name": "System", "message": f"{name} joined the session."}, room=ROOM)
+    emit("chat_message", {"name": "System", "message": f"{username} joined the session."}, room=ROOM)
 
 @socketio.on("send_message")
-def handle_message(data):
+def handle_send_message(data):
     name = clients.get(request.sid, "Anonymous")
     message = data.get("message", "")
     emit("chat_message", {"name": name, "message": message}, room=ROOM)
 
 @socketio.on("code_change")
 def handle_code_change(data):
-    emit("code_update", data, room=ROOM, include_self=False)
+    emit("code_update", data, broadcast=True, include_self=False)
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, debug=True)
