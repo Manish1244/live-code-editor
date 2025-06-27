@@ -13,7 +13,7 @@ clients = {}
 JUDGE0_URL = "https://judge0-ce.p.rapidapi.com/submissions"
 HEADERS = {
     "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
-    "x-rapidapi-key": "YOUR_RAPIDAPI_KEY",  # 🔁 Replace with your actual key
+    "x-rapidapi-key": "3598f885a0mshcffa68d4a63d140p1acd22jsn54524acc6c9e",  # 🔁 Replace with your actual key
     "content-type": "application/json"
 }
 
