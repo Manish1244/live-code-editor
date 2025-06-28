@@ -13,32 +13,33 @@ code_data = ""
 def index():
     return render_template("index.html")
 
-@app.route("/run", methods=["POST"])
+@app.route('/run', methods=['POST'])
 def run():
     data = request.get_json()
-    code = data.get("code")
-    lang = data.get("language")
-
-    url = "https://judge0-ce.p.rapidapi.com/submissions"
-    headers = {
-        "content-type": "application/json",
-        "X-RapidAPI-Key": "3598f885a0mshcffa68d4a63d140p1acd22jsn54524acc6c9e",
-        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com"
-    }
+    code = data['code']
+    language_id = data['language_id']
 
     payload = {
-        "language_id": lang,
         "source_code": code,
-        "stdin": ""
+        "language_id": language_id,
+        "stdin": "",
     }
 
-    res = requests.post(url, json=payload, headers=headers)
-    token = res.json().get("token")
+    headers = {
+        "Content-Type": "application/json",
+        "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
+        "x-rapidapi-key": "YOUR_JUDGE0_API_KEY"  # replace this with your key
+    }
 
-    result = requests.get(f"{url}/{token}?base64_encoded=false", headers=headers)
-    output = result.json().get("stdout") or result.json().get("stderr") or "No output."
+    response = requests.post(
+        "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true",
+        json=payload, headers=headers)
 
-    return jsonify({"output": output})
+    result = response.json()
+    output = result.get('stdout') or result.get('compile_output') or result.get('stderr') or "No output received."
+
+    return jsonify({'output': output})
+
 
 
 @socketio.on("code_change")
