@@ -36,7 +36,15 @@ def run():
         json=payload, headers=headers)
 
     result = response.json()
-    output = result.get('stdout') or result.get('compile_output') or result.get('stderr') or "No output received."
+    print("Judge0 Response:", result)  # Add this for debug
+
+output = (
+    result.get('stdout') or
+    result.get('compile_output') or
+    result.get('stderr') or
+    f"No output received. Full response: {result}"
+)
+
 
     return jsonify({'output': output})
 
