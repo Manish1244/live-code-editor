@@ -29,20 +29,24 @@ socket.on("code_update", (code) => {
 
 function runCode() {
   const code = editor.getValue();
-  const language = document.getElementById("language").value;
+  const languageId = document.getElementById("language").value;
+
+  document.getElementById("output").textContent = "Running...";
 
   fetch("/run", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ code, language }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code: code, language_id: languageId })
   })
-    .then((res) => res.json())
-    .then((data) => {
-      document.getElementById("output").innerText = data.output;
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("output").textContent = data.output;
+    })
+    .catch(err => {
+      document.getElementById("output").textContent = "Error: " + err;
     });
 }
+
 
 // Chat logic
 function sendMessage() {
