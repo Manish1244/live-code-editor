@@ -22,7 +22,7 @@ def run():
     url = "https://judge0-ce.p.rapidapi.com/submissions"
     headers = {
         "content-type": "application/json",
-        "X-RapidAPI-Key": "YOUR_API_KEY_HERE",
+        "X-RapidAPI-Key": "3598f885a0mshcffa68d4a63d140p1acd22jsn54524acc6c9e",
         "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com"
     }
 
