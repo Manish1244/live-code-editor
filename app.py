@@ -28,7 +28,7 @@ def run():
     headers = {
         "Content-Type": "application/json",
         "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
-        "x-rapidapi-key": "YOUR_JUDGE0_API_KEY"  # replace this with your key
+        "x-rapidapi-key": "3598f885a0mshcffa68d4a63d140p1acd22jsn54524acc6c9e"  # Replace with your actual API key
     }
 
     response = requests.post(
@@ -36,19 +36,16 @@ def run():
         json=payload, headers=headers)
 
     result = response.json()
-    print("Judge0 Response:", result)  # Add this for debug
+    print("Judge0 Response:", result)  # Debug log
 
-output = (
-    result.get('stdout') or
-    result.get('compile_output') or
-    result.get('stderr') or
-    f"No output received. Full response: {result}"
-)
-
+    output = (
+        result.get('stdout') or
+        result.get('compile_output') or
+        result.get('stderr') or
+        f"No output received. Full response: {result}"
+    )
 
     return jsonify({'output': output})
-
-
 
 @socketio.on("code_change")
 def handle_code_change(code):
