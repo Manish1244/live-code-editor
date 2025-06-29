@@ -33,7 +33,7 @@ def run():
     headers = {
         "Content-Type": "application/json",
         "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
-        "x-rapidapi-key": "YOUR_JUDGE0_API_KEY"  # 🔑 Replace with your actual key
+        "x-rapidapi-key": "3598f885a0mshcffa68d4a63d140p1acd22jsn54524acc6c9e"  # 🔑 Replace with your actual key
     }
 
     # IMPORTANT: base64_encoded=true in the URL
