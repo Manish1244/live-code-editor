@@ -13,39 +13,47 @@ code_data = ""
 def index():
     return render_template("index.html")
 
+import base64  # Add this at the top if not already present
+
 @app.route('/run', methods=['POST'])
 def run():
     data = request.get_json()
     code = data['code']
     language_id = data['language_id']
 
+    # Encode code to base64
+    encoded_code = base64.b64encode(code.encode('utf-8')).decode('utf-8')
+
     payload = {
-        "source_code": code,
+        "source_code": encoded_code,
         "language_id": language_id,
-        "stdin": "",
+        "stdin": "",  # optional, also base64 if used
     }
 
     headers = {
         "Content-Type": "application/json",
         "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
-        "x-rapidapi-key": "3598f885a0mshcffa68d4a63d140p1acd22jsn54524acc6c9e"  # Replace with your actual API key
+        "x-rapidapi-key": "YOUR_JUDGE0_API_KEY"  # 🔑 Replace with your actual key
     }
 
+    # IMPORTANT: base64_encoded=true in the URL
     response = requests.post(
-        "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=false&wait=true",
+        "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=true",
         json=payload, headers=headers)
 
     result = response.json()
-    print("Judge0 Response:", result)  # Debug log
+    print("Judge0 Response:", result)  # Debug print
 
+    # Decode output if present
     output = (
-        result.get('stdout') or
-        result.get('compile_output') or
-        result.get('stderr') or
+        base64.b64decode(result.get('stdout')).decode('utf-8') if result.get('stdout') else
+        base64.b64decode(result.get('compile_output')).decode('utf-8') if result.get('compile_output') else
+        base64.b64decode(result.get('stderr')).decode('utf-8') if result.get('stderr') else
         f"No output received. Full response: {result}"
     )
 
     return jsonify({'output': output})
+
 
 @socketio.on("code_change")
 def handle_code_change(code):
